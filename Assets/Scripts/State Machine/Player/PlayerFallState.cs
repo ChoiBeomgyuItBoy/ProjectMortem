@@ -1,10 +1,16 @@
+using Mortem.Core;
 using UnityEngine;
 
 namespace Mortem.StateMachine.Player
 {
     public class PlayerFallState : PlayerBaseState
     {
-        public PlayerFallState(PlayerStateMachine stateMachine) : base(stateMachine) { }
+        private Vector3 currentMomentum;
+
+        public PlayerFallState(PlayerStateMachine stateMachine) : base(stateMachine) 
+        { 
+            currentMomentum = stateMachine.ForceReceiver.GetMomentum();
+        }
 
         public override void Enter()
         {
@@ -13,9 +19,9 @@ namespace Mortem.StateMachine.Player
 
         public override void Tick(float deltaTime)
         {
-            mover.Move(forceReceiver.GetMomentum());
+            stateMachine.Mover.Move(currentMomentum);
 
-            if(forceReceiver.IsGrounded())
+            if(stateMachine.ForceReceiver.IsGrounded())
             {
                 stateMachine.SwitchState(new PlayerLocomotionState(stateMachine));
             }

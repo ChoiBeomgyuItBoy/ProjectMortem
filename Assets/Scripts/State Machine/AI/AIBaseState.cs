@@ -8,22 +8,16 @@ namespace Mortem.StateMachine.AI
     {
         protected AIStateMachine stateMachine;
 
-        protected NavMeshAgent agent;
-        protected Mover mover;
-
         public AIBaseState(AIStateMachine stateMachine)
         {
             this.stateMachine = stateMachine;
-
-            agent = stateMachine.GetComponent<NavMeshAgent>();
-            mover = stateMachine.GetComponent<Mover>();
 
             SetAnimator(stateMachine.GetComponent<Animator>());
         }
 
         protected void ResetNavMeshAgent()
         {
-            if(!agent.isOnNavMesh) return;
+            if(!stateMachine.Agent.isOnNavMesh) return;
 
             stateMachine.GetComponent<NavMeshAgent>().ResetPath();
             stateMachine.GetComponent<NavMeshAgent>().velocity = Vector3.zero;
@@ -51,16 +45,16 @@ namespace Mortem.StateMachine.AI
 
         protected void StartMoveAction(Vector3 destination, float speed, float blendTreeValue, float deltaTime)
         {
-            Vector3 desiredMovement = agent.desiredVelocity.normalized * speed;
+            Vector3 desiredMovement = stateMachine.Agent.desiredVelocity.normalized * speed;
 
-            mover.LookAt(desiredMovement);
+            stateMachine.Mover.LookAt(desiredMovement);
 
             SetAnimationBlendTree("MovementSpeed", blendTreeValue, deltaTime);
 
-            if(!agent.isOnNavMesh) return;
+            if(!stateMachine.Agent.isOnNavMesh) return;
 
-            agent.destination = destination;
-            mover.Move(desiredMovement);
+            stateMachine.Agent.destination = destination;
+            stateMachine.Mover.Move(desiredMovement);
         }
 
         protected void LookAtPlayer()
@@ -68,7 +62,7 @@ namespace Mortem.StateMachine.AI
             Vector3 lookPosition = stateMachine.PlayerReference.transform.position - stateMachine.transform.position;
             lookPosition.y = 0f;
 
-            mover.LookAt(lookPosition);
+            stateMachine.Mover.LookAt(lookPosition);
         }
 
         protected bool AtGuardPosition()

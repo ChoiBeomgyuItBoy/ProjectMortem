@@ -1,5 +1,3 @@
-using Mortem.Core;
-using Mortem.Movement;
 using UnityEngine;
 
 namespace Mortem.StateMachine.Player
@@ -10,13 +8,13 @@ namespace Mortem.StateMachine.Player
 
         public override void Enter()
         {
-            fighter.ResetHit();
+            stateMachine.Fighter.ResetHit();
             PlayRandomAnimation(impactAnimations);
         }
 
         public override void Tick(float deltaTime)
         {
-            mover.Move(Vector3.zero);
+            stateMachine.Mover.Move(Vector3.zero);
 
             if(GetNormalizedTime("Impact") < 1) return;
 

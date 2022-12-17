@@ -1,12 +1,28 @@
+using Mortem.Combat;
+using Mortem.Control;
+using Mortem.Core;
+using Mortem.Movement;
 using UnityEngine;
 
 namespace Mortem.StateMachine.Player
 {
     public class PlayerLocomotionState : PlayerBaseState
     {
-        private static bool alreadyEquipedWeapon;
+        private PlayerInput input;
+        private Mover mover;
+        private ForceReceiver forceReceiver;
+        private Targeter targeter;
 
-        public PlayerLocomotionState(PlayerStateMachine stateMachine) : base(stateMachine) { }
+        private Transform mainCameraTransform;
+
+        public PlayerLocomotionState(PlayerStateMachine stateMachine) : base(stateMachine) 
+        { 
+            input = stateMachine.Input;
+            mover = stateMachine.Mover;
+            forceReceiver = stateMachine.ForceReceiver;
+            mainCameraTransform = stateMachine.MainCameraTransform;
+            targeter = stateMachine.Targeter;
+        }
 
         public override void Enter() 
         { 
@@ -14,27 +30,20 @@ namespace Mortem.StateMachine.Player
             input.TargetEvent += HandleTarget;
 
             PlayAnimationSmoothly("Locomotion");
-
-            if(!weapon) return;
-
-            fighter.UnequipWeapon();
         }
 
         public override void Tick(float deltaTime)
         {
-            LocomotionBehaviour(stateMachine.FreeMovementSpeed, CalculateMovement().magnitude, deltaTime);
+            Jog(deltaTime);
 
             if(input.IsRunning)
             {
-                if(CalculateMovement() == Vector3.zero) return;
-                LocomotionBehaviour(stateMachine.RunningSpeed, 1.5f, deltaTime);
+                Run(deltaTime);
             }
 
             if(input.IsAttacking)
             {
-                if(!weapon) return;
-                stateMachine.SwitchState(new PlayerAttackState(stateMachine, 0));
-                fighter.EquipWeapon();
+                Attack();
             }
         }
 
@@ -44,18 +53,37 @@ namespace Mortem.StateMachine.Player
             input.TargetEvent -= HandleTarget;
         }
 
-        private void LocomotionBehaviour(float movementSpeed, float blendTreeValue, float deltaTime)
+        private void Jog(float deltaTime)
         {
-            mover.Move(CalculateMovement() * movementSpeed);
+            if(CalculateMovement() == Vector3.zero) return;
+
+            mover.Move(CalculateMovement() * stateMachine.FreeMovementSpeed);
             mover.LookAt(CalculateMovement());
 
-            SetAnimationBlendTree("MovementSpeed", blendTreeValue, deltaTime);
+            SetAnimationBlendTree("MovementSpeed", CalculateMovement().magnitude, deltaTime);
+        }
+
+        private void Run(float deltaTime)
+        {
+            if(CalculateMovement() == Vector3.zero) return;
+
+            mover.Move(CalculateMovement() * stateMachine.RunSpeed);
+            mover.LookAt(CalculateMovement());
+
+            SetAnimationBlendTree("MovementSpeed", 1.5f, deltaTime);
+        }
+
+        private void Attack()
+        {
+            if(!stateMachine.Weapon) return;
+
+            stateMachine.SwitchState(new PlayerAttackState(stateMachine, 0));
         }
 
         private Vector3 CalculateMovement()
         {
-            Vector3 forward = GetNormalizedVector(GetMainCameraTransfrom().forward);
-            Vector3 right = GetNormalizedVector(GetMainCameraTransfrom().right);
+            Vector3 forward = GetNormalizedVector(mainCameraTransform.forward);
+            Vector3 right = GetNormalizedVector(mainCameraTransform.right);
 
             return forward * input.MovementValue.y + right * input.MovementValue.x;
         }
@@ -66,11 +94,6 @@ namespace Mortem.StateMachine.Player
             normalizedVector.y = 0f;
 
             return normalizedVector;
-        }
-
-        private Transform GetMainCameraTransfrom()
-        {
-            return Camera.main.transform;
         }
 
         // Event Listeners

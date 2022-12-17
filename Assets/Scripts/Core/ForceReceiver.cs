@@ -30,7 +30,7 @@ namespace Mortem.Core
         {
             if(verticalVelocity < 0f && controller.isGrounded)
             {
-                verticalVelocity = Physics.gravity.y * Time.deltaTime;
+                verticalVelocity = (Physics.gravity.y + 5) * Time.deltaTime;
             }
             else 
             {
@@ -54,7 +54,7 @@ namespace Mortem.Core
             return impact.sqrMagnitude < 0.2f * 0.2f;
         }
 
-        public void ResetImpact()
+        private void ResetImpact()
         {
             impact = Vector3.zero;
         }
@@ -78,7 +78,7 @@ namespace Mortem.Core
 
         public bool IsGrounded()
         {
-            return controller.velocity.y < 0f && controller.isGrounded;   
+            return controller.velocity.y >= -1.5f && controller.isGrounded;   
         }
 
         public Vector3 GetMomentum()

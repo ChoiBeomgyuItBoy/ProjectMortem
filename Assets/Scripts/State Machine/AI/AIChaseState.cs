@@ -9,7 +9,7 @@ namespace Mortem.StateMachine.AI
 
         public override void Enter()
         {
-            stateMachine.GetComponent<Fighter>().ResetHit();
+            stateMachine.Fighter.ResetHit();
             PlayAnimationSmoothly("Locomotion");
         }
 

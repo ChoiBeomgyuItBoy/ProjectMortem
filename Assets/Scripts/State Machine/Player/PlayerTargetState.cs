@@ -1,16 +1,29 @@
+using Mortem.Combat;
+using Mortem.Control;
+using Mortem.Movement;
 using UnityEngine;
 
 namespace Mortem.StateMachine.Player
 {
     public class PlayerTargetState : PlayerBaseState
     {
-        public PlayerTargetState(PlayerStateMachine stateMachine) : base(stateMachine) { }   
+        private PlayerInput input;
+        private Targeter targeter;
+        private Mover mover;
+
+
+        public PlayerTargetState(PlayerStateMachine stateMachine) : base(stateMachine) 
+        { 
+            input = stateMachine.Input;
+            targeter = stateMachine.Targeter;
+            mover = stateMachine.Mover;
+        }   
 
         public override void Enter()
         {
             input.TargetEvent += CancelTargetState;
 
-            fighter.ResetHit();
+            stateMachine.Fighter.ResetHit();
 
             PlayAnimationSmoothly("Targeting");
         }
@@ -21,9 +34,7 @@ namespace Mortem.StateMachine.Player
 
             if(input.IsAttacking)
             {
-                if(!weapon) return;
                 stateMachine.SwitchState(new PlayerAttackState(stateMachine, 0));
-                fighter.EquipWeapon();
                 return;
             }
 

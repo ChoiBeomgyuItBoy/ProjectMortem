@@ -25,6 +25,8 @@ namespace Mortem.Combat
 
         private void CheckEnemyWeapon()
         {
+            if(Weapon == null) return;
+            
             if(GetComponent<CombatTarget>())
             {
                 weaponObject.layer = LayerMask.NameToLayer("EnemyWeapon");
@@ -47,6 +49,8 @@ namespace Mortem.Combat
 
         private void UpdateWeaponPosition(Transform holder)
         {
+            if(Weapon == null) return;
+
             weaponObject.transform.position = holder.position;
             weaponObject.transform.rotation = holder.rotation;
             weaponObject.transform.parent = holder;
@@ -55,11 +59,15 @@ namespace Mortem.Combat
         // Animation Events
         public void Hit()
         {
+            if(Weapon == null) return;
+
             weaponObject.GetComponent<Collider>().enabled = true;
         }
 
         public void ResetHit()
         {
+            if(Weapon == null) return;
+            
             weaponObject.GetComponent<Collider>().enabled = false;
         }
     }

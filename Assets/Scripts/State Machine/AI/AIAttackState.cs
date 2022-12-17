@@ -1,5 +1,4 @@
 using Mortem.Combat;
-using Mortem.Core;
 using UnityEngine;
 
 namespace Mortem.StateMachine.AI
@@ -10,7 +9,7 @@ namespace Mortem.StateMachine.AI
   
         public AIAttackState(AIStateMachine stateMachine) : base(stateMachine) 
         {
-            attack = stateMachine.GetComponent<Fighter>().Weapon.Combo[0];
+            attack = stateMachine.Weapon.Combo[0];
         }
 
         public override void Enter()
@@ -20,7 +19,7 @@ namespace Mortem.StateMachine.AI
 
         public override void Tick(float deltaTime)
         {
-            mover.Move(Vector3.zero);
+            stateMachine.Mover.Move(Vector3.zero);
             LookAtPlayer();
 
             if(GetNormalizedTime("Attack") < 1) return;

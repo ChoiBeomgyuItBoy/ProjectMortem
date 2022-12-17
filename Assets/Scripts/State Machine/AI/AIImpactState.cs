@@ -9,13 +9,13 @@ namespace Mortem.StateMachine.AI
 
         public override void Enter()
         {
-            stateMachine.GetComponent<Fighter>().ResetHit();
+            stateMachine.Fighter.ResetHit();
             PlayRandomAnimation(impactAnimations);
         }
 
         public override void Tick(float deltaTime)
         {
-            mover.Move(Vector3.zero);
+            stateMachine.Mover.Move(Vector3.zero);
             LookAtPlayer();
 
             if(GetNormalizedTime("Impact") < 1) return;

@@ -5,6 +5,7 @@ namespace Mortem.StateMachine.Player
 {
     public class PlayerAttackState : PlayerBaseState
     {
+        private Fighter fighter;
         private Attack attack;
 
         private bool alreadyAppliedForce = false;
@@ -13,22 +14,21 @@ namespace Mortem.StateMachine.Player
 
         public PlayerAttackState(PlayerStateMachine stateMachine, int comboIndex) : base(stateMachine)
         {
-            attack = weapon.Combo[comboIndex];
+            fighter = stateMachine.Fighter;
+            attack = fighter.Weapon.Combo[comboIndex];
         }
 
         public override void Enter()
         {
+            fighter.EquipWeapon();
             PlayAnimationSmoothly(attack.AttackAnimation.name);
         }
 
         public override void Tick(float deltaTime)
         {
-            mover.Move(Vector3.zero);
-            targeter.FaceCurrentTarget(stateMachine.transform);
+            AttackBehaviour();
 
-            TryApplyForce();
-
-            if(input.IsAttacking)
+            if(stateMachine.Input.IsAttacking)
             {
                 TryComboAttack();
             }
@@ -41,7 +41,15 @@ namespace Mortem.StateMachine.Player
 
         public override void Exit() 
         { 
-            forceReceiver.ResetImpact();
+            fighter.UnequipWeapon();
+        }
+
+        private void AttackBehaviour()
+        {
+            stateMachine.Mover.Move(Vector3.zero);
+            stateMachine.Targeter.FaceCurrentTarget(stateMachine.transform);
+
+            TryApplyForce();
         }
 
         private void TryComboAttack()
@@ -57,7 +65,7 @@ namespace Mortem.StateMachine.Player
             if(alreadyAppliedForce) return;
             if(GetNormalizedTime("Attack") < applyForceTime) return;
                 
-            forceReceiver.AddForce(stateMachine.transform.forward * attack.AttackForce);
+            stateMachine.ForceReceiver.AddForce(stateMachine.transform.forward * attack.AttackForce);
 
             alreadyAppliedForce = true;
         }

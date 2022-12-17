@@ -13,6 +13,13 @@ namespace Mortem.Combat
 
         public CombatTarget CurrentTarget { get; private set; }
 
+        private Camera mainCamera;
+
+        private void Start()
+        {
+            mainCamera = Camera.main;
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             if(!other.TryGetComponent<CombatTarget>(out CombatTarget target)) return;
@@ -47,7 +54,7 @@ namespace Mortem.Combat
         
         private Vector2 GetTargetScreenPosition(CombatTarget target)
         {
-            return Camera.main.WorldToViewportPoint(target.transform.position);
+            return mainCamera.WorldToViewportPoint(target.transform.position);
         }
 
         private bool IsInScreen(CombatTarget target)

@@ -2,6 +2,7 @@ using UnityEngine.AI;
 using UnityEngine;
 using Mortem.Control;
 using Mortem.Combat;
+using Mortem.Movement;
 
 namespace Mortem.StateMachine.AI
 {
@@ -15,22 +16,37 @@ namespace Mortem.StateMachine.AI
         [field: SerializeField] public float SuspicionTime { get; private set; } = 2f;
         [field: SerializeField] public float WaypointTolerance { get; private set; } = 1f;
 
+        public NavMeshAgent Agent { get; private set; }
+        public Mover Mover { get; private set; }
+        public Fighter Fighter { get; private set; }
+        public Weapon Weapon { get; private set; }
+        public Health Health { get; private set; }
+
         public Vector3 GuardPosition { get; private set; }
 
         public Health PlayerReference { get; private set; }
 
         public float TimeSinceLastSawPlayer = Mathf.Infinity;
 
+        private void Awake()
+        {
+            Agent = GetComponent<NavMeshAgent>();
+            Mover = GetComponent<Mover>();
+            Fighter = GetComponent<Fighter>();
+            Weapon = GetComponent<Fighter>().Weapon;
+            Health = GetComponent<Health>();
+        }
+
         private void OnEnable()
         {
-            GetComponent<Health>().DamageEvent += HandleDamage;
-            GetComponent<Health>().DeadEvent += HandleDead;
+            Health.DamageEvent += HandleDamage;
+            Health.DeadEvent += HandleDead;
         }
 
         private void OnDisable()
         {
-            GetComponent<Health>().DamageEvent -= HandleDamage;
-            GetComponent<Health>().DeadEvent -= HandleDead;
+            Health.DamageEvent -= HandleDamage;
+            Health.DeadEvent -= HandleDead;
         }
 
         private void Start()
