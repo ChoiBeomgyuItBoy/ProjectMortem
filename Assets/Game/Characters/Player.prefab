@@ -3727,7 +3727,7 @@ MonoBehaviour:
   <JumpForce>k__BackingField: 4
   <DoubleJumpForce>k__BackingField: 3
   <FreeMovementSpeed>k__BackingField: 4
-  <RunningSpeed>k__BackingField: 5
+  <RunSpeed>k__BackingField: 5
   <TargetingSpeed>k__BackingField: 3
 --- !u!114 &-2688381221040866965
 MonoBehaviour:

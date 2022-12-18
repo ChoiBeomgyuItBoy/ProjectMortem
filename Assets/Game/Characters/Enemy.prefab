@@ -2425,6 +2425,11 @@ PrefabInstance:
     serializedVersion: 2
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 783831187128871684, guid: a7adb3144eb8ff34ca40135325dccc9c,
+        type: 3}
+      propertyPath: uniqueIdentifier
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 3393130159421989088, guid: a7adb3144eb8ff34ca40135325dccc9c,
         type: 3}
       propertyPath: m_RootOrder
@@ -2509,6 +2514,19 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1696463854580578138}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &-8626830466837799441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4079659847649564603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0899be6528dfecd4cae167526422dd9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationDamping: 10
 --- !u!195 &-4517987426459241230
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2531,19 +2549,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &-8626830466837799441
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4079659847649564603}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0899be6528dfecd4cae167526422dd9b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rotationDamping: 10
 --- !u!114 &-1408337380476589573
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2588,6 +2593,7 @@ MonoBehaviour:
   <ChaseSpeed>k__BackingField: 4
   <SuspicionTime>k__BackingField: 3
   <WaypointTolerance>k__BackingField: 1
+  TimeSinceLastSawPlayer: Infinity
 --- !u!114 &5621666283562212138
 MonoBehaviour:
   m_ObjectHideFlags: 0
