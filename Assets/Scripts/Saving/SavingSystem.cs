@@ -1,12 +1,24 @@
 using UnityEngine;
 using System.IO;
 using System;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Mortem.Saving
 {
     public class SavingSystem : MonoBehaviour
     {
         private const string pathExtension = ".sav";
+
+        private BinaryFormatter formatter;
+
+        private Transform playerTransform;
+
+        private void Start()
+        {
+            formatter = new BinaryFormatter();
+
+            playerTransform = GameObject.FindWithTag("Player").transform;
+        }
 
         public void Save(string saveFile)
         {
@@ -26,11 +38,7 @@ namespace Mortem.Saving
         {
             using(FileStream stream = File.Open(path, FileMode.Create))
             {
-                Transform playerTransform = GetPlayerTransform();
-
-                byte[] data = SerializeVector(playerTransform.position);
-
-                stream.Write(data, 0, data.Length);
+                formatter.Serialize(stream, new SerializableVector3(playerTransform.position)); 
             }
         }
 
@@ -38,42 +46,12 @@ namespace Mortem.Saving
         {
             using(FileStream stream = File.Open(path, FileMode.Open))
             {
-                Transform playerTransform = GetPlayerTransform();
-
-                byte[] dataBuffer = new byte[stream.Length];
-                stream.Read(dataBuffer, 0, dataBuffer.Length);
+                SerializableVector3 position = (SerializableVector3) formatter.Deserialize(stream);
 
                 playerTransform.GetComponent<CharacterController>().enabled = false;
-                playerTransform.position = DeserializeVector(dataBuffer);
+                playerTransform.position = position.ToVector();
                 playerTransform.GetComponent<CharacterController>().enabled = true;
             }
-        }
-
-        private byte[] SerializeVector(Vector3 vector)
-        {
-            byte[] vectorBytes = new byte[3 * sizeof(float)];
-
-            BitConverter.GetBytes(vector.x).CopyTo(vectorBytes, 0);
-            BitConverter.GetBytes(vector.y).CopyTo(vectorBytes, 4);
-            BitConverter.GetBytes(vector.z).CopyTo(vectorBytes, 8);
-
-            return vectorBytes;
-        }
-
-        private Vector3 DeserializeVector(byte[] dataBuffer)
-        {
-            Vector3 vector = new Vector3();
-
-            vector.x =  BitConverter.ToSingle(dataBuffer, 0);
-            vector.y =  BitConverter.ToSingle(dataBuffer, 4);
-            vector.z =  BitConverter.ToSingle(dataBuffer, 8);
-
-            return vector;
-        }
-
-        private Transform GetPlayerTransform()
-        {
-            return GameObject.FindWithTag("Player").transform;
         }
 
         private string GetPathFromSaveFile(string saveFile)
