@@ -61,6 +61,11 @@ namespace Mortem.StateMachine.AI
             GuardPosition = transform.position;
         }
 
+        public void CancelCurrentAction()
+        {
+            SwitchState(new AIIdleState(this));
+        }
+
         private void EquipWeapon()
         {
             if(!Weapon) 

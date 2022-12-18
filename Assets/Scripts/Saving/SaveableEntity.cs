@@ -1,5 +1,8 @@
+using Mortem.Combat;
+using Mortem.StateMachine.AI;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace Mortem.Saving
 {
@@ -8,6 +11,15 @@ namespace Mortem.Saving
     {
         [SerializeField] string uniqueIdentifier = "";
 
+        private CharacterController controller;
+        private NavMeshAgent agent;
+
+        private void Start()
+        {
+            controller = GetComponent<CharacterController>();
+            agent = GetComponent<NavMeshAgent>();
+        }
+
         public string GetUniqueIdentifier()
         {
             return uniqueIdentifier;
@@ -15,13 +27,30 @@ namespace Mortem.Saving
 
         public object CaptureState()
         {
-            print($"Capturing state for {GetUniqueIdentifier()}");
-            return null;
+            return new SerializableVector3(transform.position);
         }
 
         public void RestoreState(object state)
         {
-            print($"Restoring state for {GetUniqueIdentifier()}");
+            SerializableVector3 position = (SerializableVector3) state;
+
+            UpdateCharacterPosition(position.ToVector());
+        }
+
+        private void UpdateCharacterPosition(Vector3 position)
+        {
+            if(TryGetComponent<AIStateMachine>(out AIStateMachine stateMachine))
+            {
+                stateMachine.CancelCurrentAction();
+            }
+
+            controller.enabled = false;
+            if(agent) agent.enabled = false;
+
+            transform.position = position;
+
+            controller.enabled = true;
+            if(agent) agent.enabled = true;
         }
 
 #if UNITY_EDITOR
@@ -40,7 +69,7 @@ namespace Mortem.Saving
             SerializedObject serializedObject = new SerializedObject(this);
             SerializedProperty serializedProperty = serializedObject.FindProperty("uniqueIdentifier");
 
-            if(EmptyProperty(serializedProperty))
+            if(GUIDIsEmpty(serializedProperty))
             {
                 serializedProperty.stringValue = System.Guid.NewGuid().ToString();
                 serializedObject.ApplyModifiedProperties();
@@ -52,11 +81,11 @@ namespace Mortem.Saving
             return string.IsNullOrEmpty(gameObject.scene.path);
         }
 
-        private bool EmptyProperty(SerializedProperty serializedProperty)
+        private bool GUIDIsEmpty(SerializedProperty serializedProperty)
         {
             return string.IsNullOrEmpty(serializedProperty.stringValue);
         }
-        
+
 #endif
 
     }
