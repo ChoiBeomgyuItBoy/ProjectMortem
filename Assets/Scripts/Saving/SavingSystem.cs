@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.IO;
-using System;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections.Generic;
 
 namespace Mortem.Saving
 {
@@ -11,46 +11,60 @@ namespace Mortem.Saving
 
         private BinaryFormatter formatter;
 
-        private Transform playerTransform;
-
         private void Start()
         {
             formatter = new BinaryFormatter();
-
-            playerTransform = GameObject.FindWithTag("Player").transform;
         }
 
         public void Save(string saveFile)
         {
             string path = GetPathFromSaveFile(saveFile);
             print($"Saving to {path}");
-            WriteDataToPath(path);
+            SerializeData(path);
         }
 
         public void Load(string saveFile)
         {
             string path = GetPathFromSaveFile(saveFile);
             print($"Loading from {GetPathFromSaveFile(saveFile)}");
-            ReadDataFromPath(path);
+            DeserializeData(path);
         }
 
-        private void WriteDataToPath(string path)
+        private void SerializeData(string path)
         {
             using(FileStream stream = File.Open(path, FileMode.Create))
             {
-                formatter.Serialize(stream, new SerializableVector3(playerTransform.position)); 
+                formatter.Serialize(stream, CaptureState()); 
             }
         }
 
-        private void ReadDataFromPath(string path)
+        private void DeserializeData(string path)
         {
             using(FileStream stream = File.Open(path, FileMode.Open))
             {
-                SerializableVector3 position = (SerializableVector3) formatter.Deserialize(stream);
+                RestoreState(formatter.Deserialize(stream));
+            }
+        }
 
-                playerTransform.GetComponent<CharacterController>().enabled = false;
-                playerTransform.position = position.ToVector();
-                playerTransform.GetComponent<CharacterController>().enabled = true;
+        private object CaptureState()
+        {   
+            Dictionary<string, object> stateDict = new Dictionary<string, object>();
+
+            foreach(SaveableEntity saveable in FindObjectsOfType<SaveableEntity>())
+            {
+                stateDict[saveable.GetUniqueIdentifier()] = saveable.CaptureState();
+            }
+
+            return stateDict;
+        }   
+
+        private void RestoreState(object state)
+        {
+            Dictionary<string, object> stateDict = (Dictionary<string, object>) state;
+
+            foreach(SaveableEntity saveable in FindObjectsOfType<SaveableEntity>())
+            {
+                saveable.RestoreState(stateDict[saveable.GetUniqueIdentifier()]);
             }
         }
 
