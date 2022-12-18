@@ -13,14 +13,12 @@ namespace Mortem.StateMachine.Player
         private ForceReceiver forceReceiver;
         private Targeter targeter;
 
-        private Transform mainCameraTransform;
 
         public PlayerLocomotionState(PlayerStateMachine stateMachine) : base(stateMachine) 
         { 
             input = stateMachine.Input;
             mover = stateMachine.Mover;
             forceReceiver = stateMachine.ForceReceiver;
-            mainCameraTransform = stateMachine.MainCameraTransform;
             targeter = stateMachine.Targeter;
         }
 
@@ -55,12 +53,12 @@ namespace Mortem.StateMachine.Player
 
         private void Jog(float deltaTime)
         {
+            SetAnimationBlendTree("MovementSpeed", CalculateMovement().magnitude, deltaTime);
+
             if(CalculateMovement() == Vector3.zero) return;
 
             mover.Move(CalculateMovement() * stateMachine.FreeMovementSpeed);
             mover.LookAt(CalculateMovement());
-
-            SetAnimationBlendTree("MovementSpeed", CalculateMovement().magnitude, deltaTime);
         }
 
         private void Run(float deltaTime)
@@ -82,8 +80,8 @@ namespace Mortem.StateMachine.Player
 
         private Vector3 CalculateMovement()
         {
-            Vector3 forward = GetNormalizedVector(mainCameraTransform.forward);
-            Vector3 right = GetNormalizedVector(mainCameraTransform.right);
+            Vector3 forward = GetNormalizedVector(stateMachine.MainCameraTransform.forward);
+            Vector3 right = GetNormalizedVector(stateMachine.MainCameraTransform.right);
 
             return forward * input.MovementValue.y + right * input.MovementValue.x;
         }

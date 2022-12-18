@@ -11,17 +11,20 @@ namespace Mortem.Movement
         private CharacterController controller;
         private ForceReceiver forceReceiver;
 
+        private NavMeshAgent agent;
+
         private void Start()
         {
             controller = GetComponent<CharacterController>();
             forceReceiver = GetComponent<ForceReceiver>();
+            agent = GetComponent<NavMeshAgent>();
         }
 
         public void Move(Vector3 motion)
         {
             controller.Move((motion + forceReceiver.TotalForce) * Time.deltaTime);
 
-            if(!TryGetComponent<NavMeshAgent>(out NavMeshAgent agent)) return;
+            if(!agent) return;
 
             agent.velocity = controller.velocity;
         }

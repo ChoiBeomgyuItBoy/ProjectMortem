@@ -35,6 +35,8 @@ namespace Mortem.StateMachine.AI
             Fighter = GetComponent<Fighter>();
             Weapon = GetComponent<Fighter>().Weapon;
             Health = GetComponent<Health>();
+
+            PlayerReference = GameObject.FindGameObjectWithTag("Player").GetComponent<Health>();
         }
 
         private void OnEnable()
@@ -53,8 +55,6 @@ namespace Mortem.StateMachine.AI
         {
             SwitchState(new AIIdleState(this));
 
-            PlayerReference = GameObject.FindGameObjectWithTag("Player").GetComponent<Health>();
-
             ConfigNavMeshAgent();
             EquipWeapon();
 
@@ -63,15 +63,19 @@ namespace Mortem.StateMachine.AI
 
         private void EquipWeapon()
         {
-            if(!TryGetComponent<Fighter>(out Fighter fighter)) return;
-            if(!fighter.Weapon) Debug.LogError("Fighter Component Must Have a Weapon");
-            fighter.EquipWeapon();
+            if(!Weapon) 
+            {
+                Debug.LogError("Fighter Component Must Have a Weapon");
+                return;
+            }
+
+            Fighter.EquipWeapon();
         }
 
         private void ConfigNavMeshAgent()
         {
-            GetComponent<NavMeshAgent>().updatePosition = false;
-            GetComponent<NavMeshAgent>().updateRotation = false;
+            Agent.updatePosition = false;
+            Agent.updateRotation = false;
         }
 
         private void HandleDamage()
