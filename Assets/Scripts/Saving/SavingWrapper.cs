@@ -11,18 +11,30 @@ namespace Mortem.Saving
         private void Start()
         {
             savingSystem = GetComponent<SavingSystem>();
+
+            Load();
         }
 
         private void Update()
         {
             if(Input.GetKeyDown(KeyCode.K))
             {
-                savingSystem.Save(defaultSaveFile);
+                Save();
             }
             else if(Input.GetKeyDown(KeyCode.L))
             {
-                savingSystem.Load(defaultSaveFile);
+                Load();
             }
+        }
+
+        public void Save()
+        {
+            savingSystem.Save(defaultSaveFile);
+        }
+
+        public void Load()
+        {
+            savingSystem.Load(defaultSaveFile);
         }
     }
 }

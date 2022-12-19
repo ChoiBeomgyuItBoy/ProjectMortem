@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Mortem.Combat;
 using Mortem.StateMachine.AI;
 using UnityEditor;
@@ -11,14 +12,7 @@ namespace Mortem.Saving
     {
         [SerializeField] string uniqueIdentifier = "";
 
-        private CharacterController controller;
-        private NavMeshAgent agent;
-
-        private void Start()
-        {
-            controller = GetComponent<CharacterController>();
-            agent = GetComponent<NavMeshAgent>();
-        }
+        public object Diciionary { get; private set; }
 
         public string GetUniqueIdentifier()
         {
@@ -27,30 +21,29 @@ namespace Mortem.Saving
 
         public object CaptureState()
         {
-            return new SerializableVector3(transform.position);
+            Dictionary<string, object> state = new Dictionary<string, object>();
+
+            foreach(ISaveable saveable in GetComponents<ISaveable>())
+            {
+                state[saveable.GetType().ToString()] = saveable.CaptureState();
+            }
+
+            return state;
         }
 
         public void RestoreState(object state)
         {
-            SerializableVector3 position = (SerializableVector3) state;
+            Dictionary<string, object> stateDict = (Dictionary<string, object>) state;
 
-            UpdateCharacterPosition(position.ToVector());
-        }
-
-        private void UpdateCharacterPosition(Vector3 position)
-        {
-            if(TryGetComponent<AIStateMachine>(out AIStateMachine stateMachine))
+            foreach(ISaveable saveable in GetComponents<ISaveable>())
             {
-                stateMachine.CancelCurrentAction();
+                string type = saveable.GetType().ToString();
+
+                if(stateDict.ContainsKey(type))
+                {
+                    saveable.RestoreState(stateDict[type]);
+                }
             }
-
-            controller.enabled = false;
-            if(agent) agent.enabled = false;
-
-            transform.position = position;
-
-            controller.enabled = true;
-            if(agent) agent.enabled = true;
         }
 
 #if UNITY_EDITOR

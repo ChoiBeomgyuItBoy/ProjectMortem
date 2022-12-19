@@ -81,9 +81,12 @@ namespace Mortem.SceneManagement
         private void UpdatePlayer(Portal otherPortal)
         {
             GameObject player = GameObject.FindWithTag("Player");
+
             player.GetComponent<CharacterController>().enabled = false;
+
             player.transform.position = otherPortal.spawnPoint.position;
             player.transform.rotation = otherPortal.spawnPoint.rotation;
+
             player.GetComponent<CharacterController>().enabled = true;
         }
     }
