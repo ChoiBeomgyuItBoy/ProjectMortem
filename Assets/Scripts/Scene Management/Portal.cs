@@ -1,5 +1,6 @@
 using System.Collections;
 using Mortem.Control;
+using Mortem.Saving;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -19,6 +20,15 @@ namespace Mortem.SceneManagement
         private const float fadeInTime = 1f;
         private const float fadeWaitTime = 0.5f;
 
+        private SavingWrapper savingWrapper;
+        private Fader fader;
+
+        private void Start()
+        {
+            savingWrapper = FindObjectOfType<SavingWrapper>();
+            fader = FindObjectOfType<Fader>();
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             if(other.tag == "Player")
@@ -37,12 +47,16 @@ namespace Mortem.SceneManagement
 
             DontDestroyOnLoad(gameObject);
 
-            Fader fader = FindObjectOfType<Fader>();
-
             yield return fader.FadeOut(fadeOutTime);
+
+            savingWrapper.Save();
+
             yield return SceneManager.LoadSceneAsync(sceneToLoad);
+
+            savingWrapper.Load();
         
             Portal otherPortal = GetOtherPortal();
+
             UpdatePlayer(otherPortal);
 
             yield return new WaitForSeconds(fadeWaitTime);
