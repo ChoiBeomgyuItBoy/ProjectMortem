@@ -1,9 +1,7 @@
 using System.Collections.Generic;
-using Mortem.Combat;
-using Mortem.StateMachine.AI;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.AI;
+
 
 namespace Mortem.Saving
 {
@@ -12,7 +10,7 @@ namespace Mortem.Saving
     {
         [SerializeField] string uniqueIdentifier = "";
 
-        public object Diciionary { get; private set; }
+        private static Dictionary<string, SaveableEntity> globalLookup = new Dictionary<string, SaveableEntity>();
 
         public string GetUniqueIdentifier()
         {
@@ -62,11 +60,15 @@ namespace Mortem.Saving
             SerializedObject serializedObject = new SerializedObject(this);
             SerializedProperty serializedProperty = serializedObject.FindProperty("uniqueIdentifier");
 
-            if(GUIDIsEmpty(serializedProperty))
+            string GUID = serializedProperty.stringValue;
+
+            if(IsEmpty(GUID) || !IsUnique(GUID))
             {
                 serializedProperty.stringValue = System.Guid.NewGuid().ToString();
                 serializedObject.ApplyModifiedProperties();
             }
+
+            globalLookup[serializedProperty.stringValue] = this;
         }
 
         private bool InPrefabMode()
@@ -74,9 +76,30 @@ namespace Mortem.Saving
             return string.IsNullOrEmpty(gameObject.scene.path);
         }
 
-        private bool GUIDIsEmpty(SerializedProperty serializedProperty)
+        private bool IsEmpty(string GUID)
         {
-            return string.IsNullOrEmpty(serializedProperty.stringValue);
+            return string.IsNullOrEmpty(GUID);
+        }
+
+        private bool IsUnique(string GUID)
+        {
+            if(!globalLookup.ContainsKey(uniqueIdentifier)) return true;
+
+            if(globalLookup[GUID] == this) return true;
+
+            if(globalLookup[GUID] == null)
+            {
+                globalLookup.Remove(GUID);
+                return true;
+            }
+
+            if(globalLookup[GUID].GetUniqueIdentifier() != GUID)
+            {
+                globalLookup.Remove(GUID);
+                return true;
+            }
+
+            return false;
         }
 
 #endif

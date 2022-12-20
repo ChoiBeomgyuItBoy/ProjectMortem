@@ -26,7 +26,7 @@ namespace Mortem.StateMachine.AI
 
         public Health PlayerReference { get; private set; }
 
-        public float TimeSinceLastSawPlayer = Mathf.Infinity;
+        public float TimeSinceLastSawPlayer { get; set; } = Mathf.Infinity;
 
         private void Awake()
         {
@@ -53,17 +53,14 @@ namespace Mortem.StateMachine.AI
 
         private void Start()
         {
+            if(Health.IsDead) return;
+
             SwitchState(new AIIdleState(this));
 
             ConfigNavMeshAgent();
             EquipWeapon();
 
             GuardPosition = transform.position;
-        }
-
-        public void CancelCurrentAction()
-        {
-            SwitchState(new AIIdleState(this));
         }
 
         private void EquipWeapon()

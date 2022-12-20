@@ -1,18 +1,26 @@
+using System.Collections;
+using Mortem.Saving;
 using UnityEngine;
 
-namespace Mortem.Saving
+namespace Mortem.SceneManagement
 {
     public class SavingWrapper : MonoBehaviour
     {
+         private SavingSystem savingSystem;
+        private Fader fader;
+
         private const string defaultSaveFile = "save";
+        private const float fadeInTime = 1f;
 
-        private SavingSystem savingSystem;
-
-        private void Start()
+        private IEnumerator Start()
         {
             savingSystem = GetComponent<SavingSystem>();
+            fader = FindObjectOfType<Fader>();
 
-            Load();
+            fader.FadeOutInmediate();
+            
+            yield return(savingSystem.LoadLastScene(defaultSaveFile)); 
+            yield return(fader.FadeIn(fadeInTime));
         }
 
         private void Update()

@@ -48,9 +48,6 @@ namespace Mortem.SceneManagement
             DontDestroyOnLoad(gameObject);
 
             yield return fader.FadeOut(fadeOutTime);
-
-            savingWrapper.Save();
-
             yield return SceneManager.LoadSceneAsync(sceneToLoad);
 
             savingWrapper.Load();
@@ -58,6 +55,8 @@ namespace Mortem.SceneManagement
             Portal otherPortal = GetOtherPortal();
 
             UpdatePlayer(otherPortal);
+
+            savingWrapper.Save();
 
             yield return new WaitForSeconds(fadeWaitTime);
             yield return fader.FadeIn(fadeInTime);

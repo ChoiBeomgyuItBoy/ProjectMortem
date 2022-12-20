@@ -1,9 +1,10 @@
 using System;
+using Mortem.Saving;
 using UnityEngine;
 
 namespace Mortem.Combat
 {
-    public class Health : MonoBehaviour
+    public class Health : MonoBehaviour, ISaveable
     {
         [SerializeField] private float health = 100f;
 
@@ -19,14 +20,20 @@ namespace Mortem.Combat
             DamageEvent?.Invoke();
 
             health = Mathf.Max(health - damage, 0f);
-            print(transform.name + ": " + health);
 
-            if(IsDead) Die();
+            if(IsDead) DeadEvent?.Invoke();
         }
 
-        private void Die()
+        public object CaptureState()
         {
-            DeadEvent?.Invoke();
+            return health;
+        }
+
+        public void RestoreState(object state)
+        {
+            health = (float) state;
+
+            if(IsDead) DeadEvent?.Invoke();
         }
     }
 }

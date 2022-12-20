@@ -2,6 +2,8 @@ using UnityEngine;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 namespace Mortem.Saving
 {
@@ -16,9 +18,27 @@ namespace Mortem.Saving
             formatter = new BinaryFormatter();
         }
 
+        public IEnumerator LoadLastScene(string saveFile)
+        {
+            Dictionary<string, object> state = LoadFile(saveFile);
+
+            if(state.ContainsKey("lastSceneBuildIndex"))
+            {
+                int buildIndex = (int) state["lastSceneBuildIndex"];
+
+                if(buildIndex != SceneManager.GetActiveScene().buildIndex)
+                {
+                    yield return SceneManager.LoadSceneAsync(buildIndex);
+                }
+            }
+
+            RestoreState(state);
+        }
+
         public void Save(string saveFile)
         {
             Dictionary<string, object> state = LoadFile(saveFile);
+
             CaptureState(state);
             SaveFile(saveFile, state);
         }
@@ -63,6 +83,8 @@ namespace Mortem.Saving
             {
                 state[saveable.GetUniqueIdentifier()] = saveable.CaptureState();
             }
+
+            state["lastSceneBuildIndex"] = SceneManager.GetActiveScene().buildIndex;
         }   
 
         private void RestoreState(Dictionary<string, object> state)

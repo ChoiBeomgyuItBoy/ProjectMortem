@@ -18,9 +18,9 @@ namespace Mortem.Combat
 
             weaponObject = Instantiate(Weapon.gameObject);
 
-            ResetHit();
-
             CheckEnemyWeapon();
+
+            ResetHit();
         }
 
         private void CheckEnemyWeapon()
@@ -49,11 +49,9 @@ namespace Mortem.Combat
 
         private void UpdateWeaponPosition(Transform holder)
         {
-            if(Weapon == null) return;
-
+            weaponObject.transform.parent = holder;
             weaponObject.transform.position = holder.position;
             weaponObject.transform.rotation = holder.rotation;
-            weaponObject.transform.parent = holder;
         }
 
         // Animation Events

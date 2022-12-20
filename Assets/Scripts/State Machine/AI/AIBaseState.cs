@@ -19,8 +19,8 @@ namespace Mortem.StateMachine.AI
         {
             if(!stateMachine.Agent.isOnNavMesh) return;
 
-            stateMachine.GetComponent<NavMeshAgent>().ResetPath();
-            stateMachine.GetComponent<NavMeshAgent>().velocity = Vector3.zero;
+            stateMachine.Agent.ResetPath();
+            stateMachine.Agent.velocity = Vector3.zero;
         }
 
         protected bool IsInChaseRange()
@@ -54,7 +54,7 @@ namespace Mortem.StateMachine.AI
             if(!stateMachine.Agent.isOnNavMesh) return;
 
             stateMachine.Agent.destination = destination;
-            stateMachine.Mover.Move(desiredMovement);
+            stateMachine.Mover.NavMeshAgentMove(desiredMovement);
         }
 
         protected void LookAtPlayer()

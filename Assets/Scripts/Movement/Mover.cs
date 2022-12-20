@@ -2,7 +2,6 @@ using UnityEngine;
 using Mortem.Core;
 using UnityEngine.AI;
 using Mortem.Saving;
-using Mortem.StateMachine.AI;
 
 namespace Mortem.Movement
 {
@@ -22,13 +21,20 @@ namespace Mortem.Movement
             agent = GetComponent<NavMeshAgent>();
         }
 
-        public void Move(Vector3 motion)
+        public void NavMeshAgentMove(Vector3 motion)
         {
-            controller.Move((motion + forceReceiver.TotalForce) * Time.deltaTime);
-
-            if(!agent) return;
+            if(!agent.isOnNavMesh) return;
 
             agent.velocity = controller.velocity;
+
+            Move(motion);
+        }
+
+        public void Move(Vector3 motion)
+        {
+            if(!controller) return;
+
+            controller.Move((motion + forceReceiver.TotalForce) * Time.deltaTime);
         }
 
         public void LookAt(Vector3 direction)
@@ -45,26 +51,13 @@ namespace Mortem.Movement
 
         private void UpdateCharacterPosition(Vector3 position)
         {
-            if(TryGetComponent<AIStateMachine>(out AIStateMachine stateMachine))
-            {
-                stateMachine.CancelCurrentAction();
+            if(agent) agent.enabled = false;
+            GetComponent<CharacterController>().enabled = false;
 
-                if(agent) agent.enabled = false;
-                if(controller) controller.enabled = false;
-                
-                transform.position = position;
+            transform.position = position;
 
-                if(agent) agent.enabled = true;
-                if(controller) controller.enabled = true;
-            }
-            else
-            {
-                if(controller) controller.enabled = false;
-
-                transform.position = position;
-                
-                if(controller) controller.enabled = true;
-            }
+            GetComponent<CharacterController>().enabled = true;
+            if(agent) agent.enabled = true;
         }
 
         private bool IsPlayer()
